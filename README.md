@@ -1,194 +1,454 @@
-# 🚀 PneumoVision
-### AI-Powered Pneumonia Detection from Chest X-Rays
+<div align="center">
 
-![Python](https://img.shields.io/badge/Python-3.12-blue)
-![TensorFlow](https://img.shields.io/badge/TensorFlow-2.16-orange)
-![Streamlit](https://img.shields.io/badge/Streamlit-App-red)
-![EfficientNet](https://img.shields.io/badge/Backbone-EfficientNetB0-green)
-![License](https://img.shields.io/badge/License-MIT-yellow)
+🫁 PneumoVision
 
-📌 Project Overview
+AI-Powered Pneumonia Detection from Chest X-Rays
 
-Problem
+<p>
+  <img src="https://img.shields.io/badge/Python-3.12-blue?style=for-the-badge&logo=python&logoColor=white" alt="Python">
+  <img src="https://img.shields.io/badge/TensorFlow-2.16-orange?style=for-the-badge&logo=tensorflow&logoColor=white" alt="TensorFlow">
+  <img src="https://img.shields.io/badge/Streamlit-App-red?style=for-the-badge&logo=streamlit&logoColor=white" alt="Streamlit">
+  <img src="https://img.shields.io/badge/Backbone-EfficientNet--B0-green?style=for-the-badge" alt="EfficientNet-B0">
+  <img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" alt="License">
+</p>
 
-Pneumonia detection from chest radiographs requires careful visual interpretation and can be time-consuming, particularly when screening large numbers of images. The goal of this project is to build a reproducible computer-vision pipeline that can distinguish between normal and pneumonia chest X-rays while also exposing the regions that influenced the model's prediction.
+<p>
+  <b>End-to-end deep learning pipeline for pneumonia classification with transfer learning, two-stage fine-tuning, threshold optimization, Grad-CAM explainability, error analysis, and Streamlit deployment.</b>
+</p>
 
-Objectives
+</div>
 
-Classify chest X-rays into NORMAL and PNEUMONIA.
+📌 Table of Contents
 
-Use ImageNet-pretrained EfficientNet-B0 to leverage transfer learning.
+Overview
 
-Improve robustness through CLAHE, medically conservative augmentation, dropout, batch normalization, class weighting, and fine-tuning.
+Key Features
 
-Train in two controlled stages: 50 epochs of feature extraction + 15 epochs of fine-tuning by default.
+System Architecture
 
-Select the operating threshold using the validation set only.
+Dataset
 
-Perform the final metric calculation on a held-out test set without threshold search.
+Preprocessing
 
-Provide Grad-CAM visual explanations for individual predictions.
+Model Architecture
 
-Analyze false positives, false negatives, confidence distributions, and confusion categories.
+Training Strategy
 
-Provide a browser-based Streamlit application and downloadable PDF prediction reports.
+Evaluation
 
-Maintain reproducibility with deterministic seeds, tests, experiment logs, and GitHub Actions CI.
+Threshold Optimization
 
-🏗️ End-to-End Pipeline
+Explainability with Grad-CAM
 
-                    ┌─────────────────────┐
-                    │     Chest X-Ray     │
-                    └──────────┬──────────┘
-                               ↓
-                    Image validation/loading
-                               ↓
-                    Resize → 224 × 224
-                               ↓
-                    RGB conversion
-                               ↓
-                         CLAHE
-                               ↓
-                    Normalize to [0, 1]
-                               ↓
-              ┌────────────────────────────┐
-              │ Train only: augmentation   │
-              │ flip / affine / crop /     │
-              │ noise / brightness etc.    │
-              └─────────────┬──────────────┘
-                            ↓
-              Backbone-aware preprocessing
-                            ↓
-                 EfficientNet-B0
-                 ImageNet pretrained
-                            ↓
-                 Global Average Pooling
-                            ↓
-                      Dropout 0.4
-                            ↓
-                   Dense 256 + BN
-                            ↓
-                        Swish
-                            ↓
-                      Dropout 0.3
-                            ↓
-                   Dense 128 + BN
-                            ↓
-                        Swish
-                            ↓
-                    Dense 1 + Sigmoid
-                            ↓
-              PNEUMONIA probability p
-                            ↓
-             Validation-tuned threshold
-                            ↓
-              NORMAL / PNEUMONIA
-                    ↙             ↘
-             Confidence       Grad-CAM
-                                  ↓
-                          Visual explanation
-                                  ↓
-                         Streamlit / PDF report
+Error Analysis
+
+Calibration
+
+Streamlit Application
+
+Project Structure
+
+Installation
+
+Usage
+
+Experiments
+
+Testing & CI/CD
+
+Important Engineering Fixes
+
+Results
+
+Limitations
+
+Future Work
+
+License
+
+🔎 Overview
+
+PneumoVision is an end-to-end computer vision system for classifying chest X-ray images into:
+
+🟢 NORMAL
+
+🔴 PNEUMONIA
+
+The project goes beyond training a CNN by implementing the complete ML lifecycle:
+
+Data Validation → Preprocessing → Augmentation → Transfer Learning → Two-Stage Fine-Tuning → Threshold Optimization → Calibration → Test Evaluation → Explainability → Error Analysis → Deployment
+
+The system is designed with reproducibility and evaluation integrity in mind. In particular, the decision threshold is selected using validation data only, while the held-out test set is reserved for final evaluation.
+
+⚠️ Medical Disclaimer: PneumoVision is a research/portfolio project and is not a certified medical device. It must not be used for clinical diagnosis or treatment decisions.
+
+✨ Key Features
+
+Area
+
+Implementation
+
+🧠 Model
+
+ImageNet-pretrained EfficientNet-B0
+
+🏋️ Training
+
+Two-stage transfer learning + fine-tuning
+
+🖼️ Preprocessing
+
+Resize, RGB conversion, CLAHE, normalization
+
+🔄 Augmentation
+
+Conservative image augmentation on training data
+
+⚖️ Imbalance
+
+Class weighting, optional oversampling, focal loss
+
+🎯 Thresholding
+
+Validation-based threshold optimization
+
+📊 Evaluation
+
+Accuracy, Precision, Recall, Specificity, F1, MCC, ROC-AUC
+
+🔥 Explainability
+
+Grad-CAM heatmaps
+
+🌡️ Calibration
+
+Optional temperature scaling
+
+🔬 Analysis
+
+False positives, false negatives, confidence analysis
+
+🧪 Testing
+
+Pytest + regression tests
+
+⚙️ CI/CD
+
+GitHub Actions
+
+🌐 Deployment
+
+Streamlit web application
+
+📄 Reporting
+
+Downloadable PDF prediction reports
+
+🔁 Robustness
+
+Optional Test-Time Augmentation
+
+🏗️ System Architecture
+
+                         ┌──────────────────────┐
+                         │      Chest X-Ray     │
+                         └──────────┬───────────┘
+                                    │
+                                    ▼
+                         ┌──────────────────────┐
+                         │ Image Validation     │
+                         │ & Loading             │
+                         └──────────┬───────────┘
+                                    │
+                                    ▼
+                         ┌──────────────────────┐
+                         │ Resize 224 × 224     │
+                         │ RGB Conversion       │
+                         └──────────┬───────────┘
+                                    │
+                                    ▼
+                         ┌──────────────────────┐
+                         │       CLAHE          │
+                         │ Contrast Enhancement │
+                         └──────────┬───────────┘
+                                    │
+                                    ▼
+                     ┌─────────────────────────────┐
+                     │ Training Only: Augmentation │
+                     └──────────────┬──────────────┘
+                                    │
+                                    ▼
+                     ┌─────────────────────────────┐
+                     │      EfficientNet-B0        │
+                     │    ImageNet Pretrained      │
+                     └──────────────┬──────────────┘
+                                    │
+                                    ▼
+                     ┌─────────────────────────────┐
+                     │ Global Average Pooling      │
+                     │ Dropout → Dense → BN        │
+                     │ Dropout → Dense → BN        │
+                     └──────────────┬──────────────┘
+                                    │
+                                    ▼
+                     ┌─────────────────────────────┐
+                     │ Sigmoid Probability         │
+                     │ P(PNEUMONIA | X-Ray)       │
+                     └──────────────┬──────────────┘
+                                    │
+                                    ▼
+                     ┌─────────────────────────────┐
+                     │ Validation-Tuned Threshold  │
+                     └──────────────┬──────────────┘
+                                    │
+                         ┌──────────┴──────────┐
+                         ▼                     ▼
+                  NORMAL / PNEUMONIA      Grad-CAM
+                                               │
+                                               ▼
+                                      Visual Explanation
+                                               │
+                                               ▼
+                                      Streamlit / PDF
+
+📂 Dataset
+
+The project uses a binary chest X-ray classification dataset organized as:
+
+dataset/
+├── train/
+│   ├── NORMAL/
+│   └── PNEUMONIA/
+│
+├── val/
+│   ├── NORMAL/
+│   └── PNEUMONIA/
+│
+└── test/
+    ├── NORMAL/
+    └── PNEUMONIA/
+
+Dataset Distribution
+
+The current verified dataset split contains 5,856 images:
+
+Split
+
+NORMAL
+
+PNEUMONIA
+
+Total
+
+🏋️ Train
+
+1,214
+
+3,495
+
+4,709
+
+🔧 Validation
+
+135
+
+388
+
+523
+
+🧪 Test
+
+234
+
+390
+
+624
+
+Total
+
+1,583
+
+4,273
+
+5,856
+
+The training set is naturally imbalanced toward the PNEUMONIA class, so imbalance handling is explicitly addressed during training.
+
+🖼️ Preprocessing
+
+Every image passes through the following deterministic preprocessing pipeline:
+
+Input X-Ray
+     │
+     ▼
+Image Validation
+     │
+     ▼
+RGB Conversion
+     │
+     ▼
+Resize → 224 × 224
+     │
+     ▼
+CLAHE
+     │
+     ▼
+Float32 + [0,1]
+     │
+     ▼
+Backbone-Aware Preprocessing
+     │
+     ▼
+Model
+
+CLAHE
+
+Contrast Limited Adaptive Histogram Equalization (CLAHE) is used to improve local contrast.
+
+Clip Limit : 2.0
+Tile Grid  : 8 × 8
+
+Unlike global contrast enhancement, CLAHE operates locally while limiting excessive amplification of image noise.
+
+Data Augmentation
+
+Augmentation is applied only to the training set.
+
+Supported transformations include:
+
+Random resized crop
+
+Horizontal flip
+
+Small affine transformations
+
+Brightness/contrast variation
+
+Gaussian noise
+
+Conservative geometric perturbations
+
+Validation and test images remain deterministic to ensure reliable evaluation.
 
 🧠 Model Architecture
 
 Backbone
 
-EfficientNet-B0, initialized with ImageNet pretrained weights.
+The default backbone is:
 
-The backbone is initially frozen so that the newly added classification head can learn the pneumonia-specific decision boundary without immediately destroying useful pretrained representations.
+EfficientNet-B0 pretrained on ImageNet
 
-Classification head
+Transfer learning is used because the available medical-image dataset is considerably smaller than datasets typically required to train a deep CNN from scratch.
+
+Classification Head
 
 EfficientNet-B0
-      ↓
+       │
+       ▼
 GlobalAveragePooling2D
-      ↓
-Dropout(0.4)
-      ↓
+       │
+       ▼
+Dropout(0.40)
+       │
+       ▼
 Dense(256)
-      ↓
+       │
+       ▼
 BatchNormalization
-      ↓
+       │
+       ▼
 Swish
-      ↓
-Dropout(0.3)
-      ↓
+       │
+       ▼
+Dropout(0.30)
+       │
+       ▼
 Dense(128)
-      ↓
+       │
+       ▼
 BatchNormalization
-      ↓
+       │
+       ▼
 Swish
-      ↓
+       │
+       ▼
 Dense(1)
-      ↓
+       │
+       ▼
 Sigmoid
 
-The implementation also supports EfficientNet-B1/B2/B3, DenseNet121, ResNet50, and MobileNetV3Large for controlled backbone comparison.
+The sigmoid output represents:
 
-Optional attention modules are available:
+P(PNEUMONIA | X-Ray)
 
-SE — Squeeze-and-Excitation
+🏋️ Training Strategy
 
-CBAM — Convolutional Block Attention Module
+Training is intentionally divided into two stages.
 
-Example:
+Stage 1 — Feature Extraction
 
-python train.py --backbone EfficientNetB3 --attention se
+50 Epochs
 
-🔥 Two-Stage Training Strategy
+During the first stage:
 
-Training is deliberately split into two stages.
+EfficientNet-B0 backbone → FROZEN
+Classification head       → TRAINABLE
+Learning rate             → 1e-3
 
-Stage 1 — Feature extraction
+The classifier learns to map the pretrained ImageNet representations to the NORMAL/PNEUMONIA task.
 
-Default: 50 epochs
+Why freeze the backbone?
 
-The pretrained EfficientNet-B0 backbone is frozen.
+The pretrained convolutional features already contain useful visual representations. Training only the new classification head first allows the model to adapt to the new task without immediately modifying the pretrained representation.
 
-Only the newly added classification head learns:
+Stage 2 — Fine-Tuning
 
-ImageNet backbone = frozen
-Classification head = trainable
-Learning rate = 1e-3
+15 Epochs
 
-This stage lets the classifier learn how pretrained visual features map to the two target classes without aggressively modifying the pretrained representation.
+After the classifier has stabilized:
 
-Stage 2 — Fine-tuning
+EfficientNet-B0
+       │
+       ├── Earlier layers → Frozen
+       │
+       └── Last ~40 layers → Trainable
 
-Default: 15 epochs
+The learning rate is reduced:
 
-The last 40 backbone layers are unfrozen by default:
+Stage 1 → 1e-3
+Stage 2 → 1e-5
 
-Backbone = partially trainable
-Last N layers = trainable
-Learning rate = 1e-5
+This allows the high-level visual features to adapt to chest X-ray patterns without aggressively destroying the pretrained representation.
 
-The learning rate is reduced by two orders of magnitude so that the pretrained representation is adapted gradually rather than overwritten.
+Training Flow
 
-Batch-normalization layers are kept appropriately constrained during fine-tuning to protect pretrained running statistics.
-
-Why two stages?
-
-Stage 1
-Frozen backbone
-High LR
-      ↓
-Learn task-specific classifier
-      ↓
-Stage 2
-Partial backbone unfreezing
-Low LR
-      ↓
-Adapt high-level features to chest X-rays
-
-This is generally more stable than immediately fine-tuning the entire pretrained network at a high learning rate.
+ImageNet Pretrained Model
+          │
+          ▼
+┌─────────────────────────┐
+│ Stage 1                 │
+│ 50 Epochs               │
+│ Backbone Frozen         │
+│ LR = 1e-3               │
+└────────────┬────────────┘
+             │
+             ▼
+┌─────────────────────────┐
+│ Stage 2                 │
+│ 15 Epochs               │
+│ Partial Fine-Tuning     │
+│ LR = 1e-5               │
+└────────────┬────────────┘
+             │
+             ▼
+       Best Checkpoint
+       Validation ROC-AUC
 
 ⚙️ Training Configuration
 
-Parameter
+Hyperparameter
 
-Default
+Value
 
 Backbone
 
@@ -202,19 +462,19 @@ Batch size
 
 32
 
-Stage 1 epochs
+Stage 1
 
-50
+50 epochs
 
-Stage 2 epochs
+Stage 2
 
-15
+15 epochs
 
-Stage 1 learning rate
+Stage 1 LR
 
 1e-3
 
-Stage 2 learning rate
+Stage 2 LR
 
 1e-5
 
@@ -232,282 +492,129 @@ Gradient clipping
 
 Dropout
 
-0.4 / 0.3
+0.40 / 0.30
 
 Dense layers
 
 256 / 128
 
-Loss
+Activation
+
+Swish
+
+Output
+
+Sigmoid
+
+Primary loss
 
 Binary Cross-Entropy
 
 Optional loss
 
-Binary Focal Cross-Entropy
-
-Mixed precision
-
-Enabled
+Focal Loss
 
 Seed
 
 42
 
-Early stopping
+Mixed precision
 
-patience = 8
-
-LR reduction
-
-factor = 0.5, patience = 4
+Enabled
 
 Model selection
 
-Best validation ROC-AUC
-
-🧪 Data & Preprocessing
-
-Dataset structure
-
-dataset/
-├── train/
-│   ├── NORMAL/
-│   └── PNEUMONIA/
-├── val/
-│   ├── NORMAL/
-│   └── PNEUMONIA/
-└── test/
-    ├── NORMAL/
-    └── PNEUMONIA/
-
-The project uses a standard chest X-ray pneumonia dataset structure with binary labels.
-
-Latest verified split
-
-The dataset preparation used in the project contains:
-
-Class
-
-Train
-
-Validation
-
-Test
-
-Total
-
-NORMAL
-
-1,214
-
-135
-
-234
-
-1,583
-
-PNEUMONIA
-
-3,495
-
-388
-
-390
-
-4,273
-
-Total
-
-4,709
-
-523
-
-624
-
-5,856
-
-The test set therefore contains 624 images, with 390 pneumonia and 234 normal cases.
-
-Preprocessing
-
-Each image goes through:
-
-Image loading and validation
-
-RGB conversion
-
-Resize to 224 × 224
-
-CLAHE contrast enhancement
-
-Float32 conversion
-
-Normalization to [0, 1]
-
-Training-only augmentation
-
-Backbone-specific preprocessing inside the model
-
-CLAHE
-
-Contrast Limited Adaptive Histogram Equalization is used to enhance local contrast while limiting excessive amplification of noise.
-
-Configuration:
-
-clip limit = 2.0
-tile grid = 8 × 8
-
-🚨 Important Preprocessing Bug & Fix
-
-A major preprocessing issue was identified and corrected.
-
-The dataset pipeline outputs images in:
-
-[0, 1]
-
-However, Keras EfficientNet implementations contain their own internal rescaling layer:
-
-[0, 255] → [0, 1]
-
-Passing already-normalized [0,1] images directly into EfficientNet therefore caused double normalization.
-
-Effect of the bug
-
-The effective input became approximately:
-
-[0,1] → /255 → [0, 0.0039]
-
-This collapsed feature magnitudes and greatly reduced inter-image separability.
-
-The observed failure mode was particularly revealing:
-
-the model tended to predict PNEUMONIA for almost every image, even when the decision threshold was changed.
-
-Corrected pipeline
-
-The model now explicitly converts the external [0,1] representation back to [0,255] before passing it into backbones that require it.
-
-Dataset output
-[0,1]
-   ↓
-Model preprocessing block
-× 255
-   ↓
-[0,255]
-   ↓
-EfficientNet internal preprocessing
-   ↓
-Correct feature representation
-
-The fix is implemented inside src/model.py, keeping the preprocessing contract consistent across training, evaluation, inference, and Grad-CAM.
-
-The fix also handles other supported backbones correctly:
-
-EfficientNet family / MobileNetV3 → internal rescaling
-
-ResNet50 → explicit ResNet preprocessing
-
-DenseNet121 → explicit DenseNet preprocessing
-
-A Keras serialization-safe custom preprocessing layer is used instead of a bare Lambda, and save/load round-trip tests are included.
-
-🔄 Data Augmentation
-
-Augmentation is applied only to the training split.
-
-The validation and test pipelines remain deterministic so that evaluation measures the actual model rather than random augmentation effects.
-
-The augmentation module supports transformations such as:
-
-Random resized crop
-
-Affine transformations
-
-Horizontal flip
-
-Small geometric perturbations
-
-Brightness/contrast variation
-
-Gaussian noise
-
-The augmentation policy is intentionally moderate because aggressive transformations can create medically unrealistic radiographs.
+Validation ROC-AUC
 
 ⚖️ Class Imbalance Handling
 
-The dataset is naturally imbalanced toward the PNEUMONIA class.
+The training data contains substantially more PNEUMONIA images than NORMAL images.
 
-The project supports multiple controlled strategies:
+The project supports three approaches.
 
-1. Class-weighted loss
+1. Class-Weighted Training
 
-The default pipeline calculates class weights from the training distribution and passes them to model.fit().
+Class weights are calculated from the training distribution and passed to the training process.
 
-2. Moderate oversampling
+2. Oversampling
 
 Optional train-only oversampling can be enabled:
 
 python train.py --oversample --oversample-ratio 0.5 --no-class-weights
 
-Oversampling never modifies validation or test data.
+Validation and test sets are never oversampled.
 
-3. Focal loss
+3. Focal Loss
+
+Focal loss can be used to place more emphasis on difficult examples:
 
 python train.py --loss focal --focal-gamma 2.0 --focal-alpha 0.25
 
-Focal loss is treated as a controlled experiment rather than automatically combined with every other imbalance correction.
+These strategies are treated as controlled experiments rather than blindly combining every technique.
 
 🎯 Threshold Optimization
 
-The classifier outputs a probability:
+The model produces a probability:
 
-P(PNEUMONIA | X-ray)
+P(PNEUMONIA | X-Ray)
 
-The default sigmoid cutoff of 0.5 is not automatically assumed to be optimal.
+The default threshold of 0.50 is not automatically assumed to be optimal.
 
-python tune_threshold.py searches thresholds from:
+Instead, the project searches the validation set for an operating threshold.
 
-0.01 → 0.99
-step = 0.01
+Threshold Range : 0.01 → 0.99
+Step Size       : 0.01
 
-using only the validation set.
-
-The primary project selection rule is:
+The primary selection criterion is:
 
 Among thresholds achieving sensitivity ≥ 95%, select the threshold with the highest specificity.
 
-This reflects the project's modeling objective of prioritizing pneumonia sensitivity while reducing unnecessary false positives.
-
-Other thresholds are also reported:
+Other thresholding strategies are also reported:
 
 Youden's J
 
 Best F1
 
-Best balanced accuracy
+Best Balanced Accuracy
 
-Correct evaluation protocol
+Evaluation Protocol
 
-Training
-   ↓
-Best checkpoint selected using validation AUC
-   ↓
-Validation set
-   ↓
-Threshold tuning
-   ↓
-Freeze selected threshold
-   ↓
-Held-out test set
-   ↓
-ONE final unbiased evaluation
+                 TRAIN
+                   │
+                   ▼
+             Model Training
+                   │
+                   ▼
+          Best Validation AUC
+                   │
+                   ▼
+              VALIDATION
+                   │
+                   ▼
+          Threshold Selection
+                   │
+                   ▼
+         ┌───────────────────┐
+         │ Freeze Threshold  │
+         └─────────┬─────────┘
+                   │
+                   ▼
+                 TEST
+                   │
+                   ▼
+           Final Evaluation
 
-The test set is never used to search for the threshold.
+Why this matters
 
-📊 Evaluation Metrics
+The test set is never used to select the threshold.
 
-The evaluation module reports:
+This prevents test-set leakage and gives a more honest estimate of generalization performance.
+
+📊 Evaluation
+
+The evaluation pipeline reports:
+
+Classification Metrics
 
 Accuracy
 
@@ -519,159 +626,154 @@ Specificity
 
 F1-score
 
-Balanced accuracy
+Balanced Accuracy
 
-Matthews Correlation Coefficient (MCC)
+Matthews Correlation Coefficient
 
 ROC-AUC
 
+Diagnostic Outputs
+
 Confusion matrix
-
-TP / TN / FP / FN
-
-Predicted probability distributions
-
-It also generates:
 
 ROC curve
 
 Precision-Recall curve
 
-Confusion matrix
+TP / TN / FP / FN counts
 
-Error-analysis plots
+Probability distributions
 
-Probability distribution diagnostics
+Confidence-ranked errors
 
-Confidence-ranked mistakes
+🔥 Explainability with Grad-CAM
 
-Historical baseline before the preprocessing fix
+PneumoVision integrates Gradient-weighted Class Activation Mapping (Grad-CAM) to visualize the image regions that contributed most to the model prediction.
 
-An audit of the earlier model showed approximately:
+                 Chest X-Ray
+                      │
+                      ▼
+                CNN Forward Pass
+                      │
+                      ▼
+              PNEUMONIA Probability
+                      │
+                      ▼
+              Gradient Computation
+                      │
+                      ▼
+          Last Convolutional Features
+                      │
+                      ▼
+                  Grad-CAM
+                      │
+                      ▼
+             Activation Heatmap
+                      │
+                      ▼
+              Overlay on X-Ray
 
-Sensitivity: 98.5%
-Specificity: 65.4%
+This allows users to inspect the model's attention alongside its classification.
 
-with 81 NORMAL images incorrectly classified as PNEUMONIA.
-
-That run was associated with the now-fixed preprocessing issue and should not be presented as the final model result.
-
-The repository's final results should be populated only from a model retrained after the preprocessing fix and evaluated through the validation-threshold → held-out-test workflow.
+Grad-CAM is an interpretability tool, not evidence that a highlighted region is medically causal.
 
 🔬 Error Analysis
 
-The project does more than report aggregate metrics.
+The project performs dedicated analysis of incorrect predictions.
 
-src/error_analysis.py analyzes:
+False Positive
 
-False positives
+Actual      → NORMAL
+Prediction  → PNEUMONIA
 
-Actual = NORMAL
-Predicted = PNEUMONIA
+False Negative
 
-False negatives
+Actual      → PNEUMONIA
+Prediction  → NORMAL
 
-Actual = PNEUMONIA
-Predicted = NORMAL
+The system can generate:
+
+False-positive montages
+
+False-negative montages
 
 Confidence-ranked mistakes
 
-Mistakes can be ranked by prediction confidence to identify cases where the model is highly confident but wrong.
+Prediction probability distributions
 
-Normal false-positive analysis
+Confusion-matrix analysis
 
-The pipeline produces a dedicated report and montage for the most problematic NORMAL images.
-
-This is useful because reducing false positives was a specific modeling objective after the initial baseline audit.
+This makes it possible to inspect where and why the model fails, rather than relying only on aggregate accuracy.
 
 🌡️ Probability Calibration
 
-The project includes optional temperature scaling.
+The project optionally applies temperature scaling to improve the calibration of predicted probabilities.
 
 python calibrate.py --model-path models/best_model.keras
 
-Calibration is fitted on the validation set only.
+Calibration is fitted on the validation set.
 
-The resulting temperature can then be supplied during threshold tuning/evaluation:
+The calibrated temperature can then be used during threshold tuning and evaluation.
 
-python tune_threshold.py --temperature <temperature>
-python evaluate.py --threshold <threshold> --temperature <temperature>
+The calibration step is treated as an experiment: it is retained only when it provides useful probability calibration.
 
-Calibration is treated as an empirical experiment: it is only used if it actually improves probability quality rather than being assumed to help.
+🌐 Streamlit Application
 
-🔍 Grad-CAM Explainability
-
-A prediction is accompanied by a Grad-CAM heatmap.
-
-Chest X-ray
-     ↓
-Model prediction
-     ↓
-Gradient computation
-     ↓
-Last convolutional feature map
-     ↓
-Grad-CAM weights
-     ↓
-Heatmap
-     ↓
-Overlay on original X-ray
-
-This allows the user to inspect where the model is focusing when making a prediction.
-
-The implementation uses TensorFlow/Keras GradientTape directly and does not depend on a PyTorch-only Grad-CAM package.
-
-🖥️ Streamlit Application
-
-Run:
+The trained model is exposed through a browser-based Streamlit application.
 
 streamlit run app.py
 
-The web application provides:
+Application Features
 
-Drag-and-drop X-ray upload
+Feature
 
-NORMAL / PNEUMONIA prediction
+Description
 
-Prediction confidence
+📤 Upload
 
-Decision threshold used
+Drag-and-drop chest X-ray
 
-Original image display
+🧠 Prediction
 
-Grad-CAM explanation
+NORMAL / PNEUMONIA
+
+📊 Confidence
+
+Predicted probability
+
+🎯 Threshold
+
+Current decision threshold
+
+🔥 Grad-CAM
+
+Visual explanation
+
+🔄 TTA
 
 Optional Test-Time Augmentation
 
-Prediction history during the session
+📜 History
 
-Threshold slider
+Session-level prediction history
 
-Downloadable PDF report
+🎚️ Threshold Slider
 
-The application automatically loads the validation-recommended threshold from:
+Interactive threshold exploration
+
+📄 PDF Report
+
+Downloadable prediction report
+
+The application loads the recommended validation threshold from:
 
 outputs/reports/threshold_recommendation.json
 
-while still allowing manual threshold exploration.
-
-🧪 Test-Time Augmentation
-
-TTA can be enabled from the CLI:
-
-python predict.py --image path/to/xray.jpg --tta
-
-or from the Streamlit interface.
-
-The model averages predictions over multiple augmented views to obtain a more robust probability estimate.
-
-TTA is optional and should be evaluated empirically rather than assumed to improve performance.
-
 📁 Project Structure
 
-Pneumonia-Detection/
+PneumoVision/
 │
-├── dataset/
+├── 📂 dataset/
 │   ├── train/
 │   │   ├── NORMAL/
 │   │   └── PNEUMONIA/
@@ -682,14 +784,14 @@ Pneumonia-Detection/
 │       ├── NORMAL/
 │       └── PNEUMONIA/
 │
-├── notebooks/
+├── 📂 notebooks/
 │   ├── 01_EDA.ipynb
 │   ├── 02_Preprocessing.ipynb
 │   ├── 03_ModelTraining.ipynb
 │   ├── 04_Evaluation.ipynb
 │   └── 05_GradCAM.ipynb
 │
-├── src/
+├── 📂 src/
 │   ├── preprocessing.py
 │   ├── augmentations.py
 │   ├── dataset.py
@@ -704,7 +806,7 @@ Pneumonia-Detection/
 │   ├── inference.py
 │   └── utils.py
 │
-├── tests/
+├── 📂 tests/
 │   ├── test_model.py
 │   ├── test_model_preprocessing.py
 │   ├── test_preprocessing.py
@@ -712,7 +814,7 @@ Pneumonia-Detection/
 │   ├── test_dataset_balancing_and_leakage.py
 │   └── test_threshold_optimizer.py
 │
-├── outputs/
+├── 📂 outputs/
 │   ├── confusion_matrix/
 │   ├── roc/
 │   ├── pr_curve/
@@ -720,8 +822,9 @@ Pneumonia-Detection/
 │   ├── error_analysis/
 │   └── reports/
 │
-├── models/
-├── .github/
+├── 📂 models/
+│
+├── 📂 .github/
 │   └── workflows/
 │       └── ci.yml
 │
@@ -741,126 +844,140 @@ Pneumonia-Detection/
 
 🚀 Installation
 
-git clone <your-repository-url>
-cd Pneumonia-Detection
+1. Clone the Repository
 
-python -m venv .venv
+git clone <YOUR_GITHUB_REPOSITORY_URL>
+cd PneumoVision
+
+2. Create a Virtual Environment
+
+macOS / Linux
+
+python3 -m venv .venv
 source .venv/bin/activate
 
-On Windows:
+Windows
 
+python -m venv .venv
 .venv\Scripts\activate
 
-Install dependencies:
+3. Install Dependencies
 
 pip install -r requirements.txt
 
-Expected core stack:
+▶️ Usage
 
-TensorFlow
-Keras
-NumPy
-Pandas
-Scikit-learn
-OpenCV
-Albumentations
-Pillow
-Matplotlib
-Streamlit
-pytest
-Black
-Flake8
-
-▶️ Running the Project
-
-1. Validate the dataset
+1. Check Dataset Integrity
 
 python check_data_integrity.py
 
-This checks:
+Checks include:
 
 Class distribution
 
-Corrupted/unreadable images
+Corrupted images
 
-Exact duplicate files across splits
+Exact duplicate files
 
-Duplicate groups
+Cross-split duplicates
 
-Patient-ID overlap where filename patterns permit detection
+Patient-ID overlap where detectable
 
-2. Train the model
+2. Train
 
 python train.py
 
-Default:
+Default training:
 
 Stage 1 → 50 epochs
 Stage 2 → 15 epochs
 
-Shorter experiment:
+For a shorter experiment:
 
 python train.py --epochs 30 --fine-tune-epochs 10
 
-Skip fine-tuning:
+To skip fine-tuning:
 
 python train.py --no-fine-tune
 
-3. Tune the threshold
+3. Tune the Decision Threshold
 
 python tune_threshold.py
 
-This generates the recommended validation threshold and supporting diagnostics.
+The recommended threshold is saved for downstream inference and evaluation.
 
-4. Evaluate on the test set
+4. Evaluate
 
-Use the threshold produced by validation:
+python evaluate.py \
+    --model-path models/best_model.keras \
+    --threshold <recommended-threshold>
 
-python evaluate.py   --model-path models/best_model.keras   --threshold <recommended-threshold>
+The test set is used only after the threshold has been frozen.
 
-Do not search for the threshold on the test set.
-
-5. Run single-image inference
+5. Single Image Prediction
 
 python predict.py --image path/to/xray.jpg
 
-With TTA:
+With Test-Time Augmentation:
 
-python predict.py --image path/to/xray.jpg --tta
+python predict.py \
+    --image path/to/xray.jpg \
+    --tta
 
 Save a Grad-CAM heatmap:
 
-python predict.py   --image path/to/xray.jpg   --save-heatmap outputs/heatmaps/example.png
+python predict.py \
+    --image path/to/xray.jpg \
+    --save-heatmap outputs/heatmaps/example.png
 
-6. Launch the web application
+6. Launch the Web Application
 
 streamlit run app.py
 
-🧪 Experiment Framework
+🧪 Experiments
 
-The repository supports controlled experiments rather than changing many variables simultaneously.
+The repository supports controlled experiments across several dimensions.
 
-Class balancing
+Backbone Comparison
 
-python train.py --oversample --oversample-ratio 0.5 --no-class-weights
+Supported architectures include:
 
-Focal loss
+EfficientNet-B0
 
-python train.py --loss focal --focal-gamma 2.0 --focal-alpha 0.25
+EfficientNet-B1
 
-Fine-tuning depth
+EfficientNet-B2
 
-python train.py --fine-tune-at-layer -20
+EfficientNet-B3
 
-Backbone comparison
+DenseNet121
 
-python compare_models.py   --backbones EfficientNetB0 EfficientNetB1 EfficientNetB2 EfficientNetB3
+ResNet50
 
-Hyperparameter optimization
+MobileNetV3Large
 
-python tune.py
+Example:
 
-Optuna support includes experiments over parameters such as:
+python compare_models.py \
+    --backbones EfficientNetB0 EfficientNetB1 EfficientNetB2 EfficientNetB3
+
+Attention Modules
+
+Optional attention mechanisms:
+
+SE — Squeeze-and-Excitation
+
+CBAM — Convolutional Block Attention Module
+
+Example:
+
+python train.py \
+    --backbone EfficientNetB3 \
+    --attention se
+
+Hyperparameter Tuning
+
+Optuna can be used to explore:
 
 Learning rate
 
@@ -870,350 +987,309 @@ Batch size
 
 Weight decay
 
-📈 Experiment Tracking
+Fine-tuning configuration
 
-tune_threshold.py can log experiment metadata and results:
+python tune.py
 
-python tune_threshold.py   --experiment-name exp1_baseline   --notes "EfficientNet-B0 baseline"
+🧹 Dataset Leakage & Integrity Checks
 
-The experiment log records information such as:
+Medical imaging datasets require careful split validation.
 
-backbone
-class balancing
-loss
-threshold
-sensitivity
-specificity
-F1
-balanced accuracy
-MCC
-ROC-AUC
-TP
-TN
-FP
-FN
+The project checks for:
 
-Saved to:
+Exact duplicates
 
-outputs/reports/experiment_log.csv
+File hashes are compared across splits.
 
-🧹 Dataset Leakage Checks
+Duplicate groups
 
-The project includes explicit integrity checks because medical datasets can contain duplicate or related images.
+Repeated images inside the same split can be detected.
 
-The integrity pipeline checks:
+Patient overlap
 
-Cross-split exact duplicates
-
-Within-split duplicates
-
-Patient-ID overlap when detectable from filenames
+Patient identifiers are checked where they can be inferred from filenames.
 
 Corrupted images
 
-Split/class counts
+Unreadable or invalid image files are reported.
 
-Exact duplicate detection uses file hashing.
-
-Near-duplicate detection, such as the same X-ray re-exported at a different resolution or compression level, is not currently guaranteed.
-
-📦 Model Export
-
-export_model.py provides an export path for deployment formats such as:
-
-TensorFlow SavedModel
-
-ONNX
-
-TFLite
-
-This creates an extension point for lightweight/edge deployment and future model optimization.
-
-🔁 CI/CD
-
-GitHub Actions is configured under:
-
-.github/workflows/ci.yml
-
-The workflow checks code quality and runs automated tests.
-
-Typical checks include:
-
-flake8 .
-black --check .
-pytest tests/ -v
-
-This ensures changes to preprocessing, model construction, thresholding, and data handling do not silently break the pipeline.
+Exact hashing does not guarantee detection of near-duplicates such as the same X-ray saved with different compression or resolution.
 
 🧪 Testing
 
-Run:
+Run the complete test suite:
 
 pytest tests/ -v --cov=src
 
-The test suite covers:
+Tests cover:
 
 Model construction
 
-Image preprocessing
+Preprocessing
 
 Dataset loading
 
 Dataset balancing
 
-Leakage checks
+Leakage detection
 
 Threshold optimization
 
 Backbone preprocessing
 
-Save/load model compatibility
+Model save/load compatibility
 
-A particularly important regression test verifies the EfficientNet preprocessing issue and ensures that the corrected model can be saved, loaded, and used for inference.
+A dedicated regression test protects against the EfficientNet preprocessing issue described below.
 
-📊 Results Reporting
+⚙️ CI/CD
 
-After retraining the corrected model, the recommended reporting workflow is:
+GitHub Actions is configured under:
 
-python train.py
-python tune_threshold.py
-python evaluate.py     --model-path models/best_model.keras     --threshold <recommended-threshold>
+.github/workflows/ci.yml
 
-Then populate the final results table from the generated test report:
+The CI pipeline can automatically run:
 
-Metric
+flake8 .
+black --check .
+pytest tests/ -v
 
-Final Test Result
+This ensures that changes do not silently break the ML pipeline.
 
-Accuracy
+🐛 Important Engineering Fixes
 
-Generated by evaluate.py
+1. EfficientNet Double Normalization
 
-Precision
+Problem
 
-Generated by evaluate.py
+The dataset pipeline produced:
 
-Recall / Sensitivity
+[0, 1]
 
-Generated by evaluate.py
+while the Keras EfficientNet implementation performs its own internal input rescaling.
 
-Specificity
+Passing [0,1] directly therefore caused an unintended second normalization:
 
-Generated by evaluate.py
+[0,1]
+   ↓
+/ 255
+   ↓
+[0, 0.0039]
 
-F1-score
+This severely reduced the useful signal available to the pretrained backbone.
 
-Generated by evaluate.py
+Observed Behavior
 
-Balanced Accuracy
+The model became heavily biased toward predicting:
 
-Generated by evaluate.py
+PNEUMONIA
 
-MCC
+for a large fraction of images.
 
-Generated by evaluate.py
+Fix
 
-ROC-AUC
+Backbone-aware preprocessing was moved into the model pipeline:
 
-Generated by evaluate.py
+Dataset
+[0,1]
+  │
+  ▼
+× 255
+  │
+  ▼
+[0,255]
+  │
+  ▼
+EfficientNet preprocessing
+  │
+  ▼
+Backbone
 
-Important: Do not reuse the historical pre-fix baseline numbers as the final model result. The final README metrics should come from the retrained, corrected model and the held-out test evaluation.
+The preprocessing implementation is also serialization-safe so that:
 
-💡 Key Engineering Decisions
+Save Model → Load Model → Predict
 
-Why EfficientNet-B0?
+uses the same preprocessing behavior.
 
-EfficientNet-B0 provides a strong accuracy/compute trade-off and makes transfer learning practical on a moderate-sized chest X-ray dataset.
+2. Hard-Coded 0.5 Threshold
 
-Why transfer learning?
+Problem
 
-The dataset is much smaller than the datasets typically required to train a deep CNN from scratch. ImageNet-pretrained convolutional features provide useful low- and mid-level visual representations.
-
-Why CLAHE?
-
-Chest radiographs can contain subtle local intensity patterns. CLAHE improves local contrast while limiting excessive contrast amplification.
-
-Why class weights?
-
-The training distribution is imbalanced, so class weighting prevents the optimization objective from being dominated by the majority class.
-
-Why threshold tuning?
-
-A sigmoid probability of 0.5 is not guaranteed to be the best operating point for an imbalanced medical screening problem. The project therefore separates probability estimation from the final decision threshold.
-
-Why validation-only threshold tuning?
-
-Using the test set to choose a threshold leaks information from the evaluation set and produces an optimistically biased estimate.
-
-Why Grad-CAM?
-
-A classification score alone does not show which part of an X-ray influenced the model. Grad-CAM provides a visual explanation that can be inspected alongside the prediction.
-
-🛠️ Important Bugs Found and Fixed
-
-1. EfficientNet double-normalization
-
-Problem: [0,1] images were passed into a backbone that internally rescales them again.
-
-Fix: Backbone-aware preprocessing was moved inside the model.
-
-2. Threshold hard-coded to 0.5
-
-Problem: Earlier inference paths always used:
+Earlier inference paths used:
 
 probability >= 0.5
 
-even after a validation-derived threshold had been selected.
+even when a validation-derived threshold had been selected.
 
-Fix: InferenceEngine, predict.py, and app.py now support/load the frozen recommended threshold.
+Fix
 
-3. Albumentations 2.x API mismatch
+The recommended threshold is now:
 
-Fresh installations of Albumentations 2.x changed constructor APIs used by the augmentation pipeline.
+Selected using validation data.
 
-The project was updated for:
+Saved to the project reports.
 
-RandomResizedCrop(size=...)
-GaussNoise(std_range=...)
+Loaded by inference/deployment.
 
-and deprecated transformation usage was consolidated appropriately.
+Used consistently during prediction.
 
-4. Keras preprocessing serialization
+3. Albumentations API Compatibility
 
-A bare Lambda(preprocess_input) was unsafe for Keras model serialization.
+The augmentation pipeline was updated to remain compatible with current Albumentations APIs, including changes to transformations such as:
 
-The project now uses registered custom preprocessing layers for supported backbones, allowing:
+RandomResizedCrop
+GaussNoise
 
-save → load → predict
+4. Keras Model Serialization
 
-to work correctly.
+A bare Lambda(preprocess_input) can cause model serialization/loading problems.
 
-🧩 Stretch Goals Already Implemented
+The project uses registered custom preprocessing layers where required so that model export and reload remain reliable.
 
-Transfer learning
+📊 Results
 
-Two-stage fine-tuning
+Evaluation Protocol
 
-CLAHE preprocessing
+The final result should be generated using:
 
-Class-weighted training
+1. Train model
+       ↓
+2. Select best checkpoint using validation ROC-AUC
+       ↓
+3. Tune threshold on validation set
+       ↓
+4. Freeze threshold
+       ↓
+5. Evaluate exactly once on held-out test set
 
-Optional oversampling
+Final Test Results
 
-Focal loss
+Metric
 
-Threshold optimization
+Result
 
-Temperature scaling
+Accuracy
 
-Grad-CAM
+Run evaluate.py
 
-Error analysis
+Precision
 
-Test-Time Augmentation
+Run evaluate.py
 
-SE attention
+Sensitivity / Recall
 
-CBAM attention
+Run evaluate.py
 
-Multi-backbone comparison
+Specificity
 
-Optuna hyperparameter tuning
+Run evaluate.py
 
-Model export
+F1-score
 
-Streamlit deployment
+Run evaluate.py
 
-PDF prediction reports
+Balanced Accuracy
 
-Unit/integration tests
+Run evaluate.py
 
-GitHub Actions CI
+MCC
 
-Experiment tracking
+Run evaluate.py
 
-Dataset leakage checks
+ROC-AUC
+
+Run evaluate.py
+
+Important: The historical pre-fix metrics are intentionally not reported as final model performance. They were obtained before correcting the EfficientNet input-preprocessing issue. The final numbers in this section should be replaced with the results from the corrected model after retraining.
+
+📈 Recommended Results Section After Retraining
+
+Once the corrected model has been retrained, replace the table above with the actual test-set values:
+
+| Metric              | Test Result |
+|---------------------|------------:|
+| Accuracy            | XX.XX%      |
+| Precision           | XX.XX%      |
+| Sensitivity/Recall  | XX.XX%      |
+| Specificity         | XX.XX%      |
+| F1-score            | XX.XX%      |
+| Balanced Accuracy   | XX.XX%      |
+| MCC                 | XX.XX%      |
+| ROC-AUC             | XX.XX%      |
+
+This keeps the README scientifically honest and prevents accidentally presenting the earlier buggy run as the final result.
+
+💡 Key Design Decisions
+
+Why EfficientNet-B0?
+
+EfficientNet-B0 provides a strong accuracy-to-computation trade-off and is practical for transfer learning on a moderate-sized image dataset.
+
+Why two-stage training?
+
+Freezing the backbone first allows the new classification head to stabilize before high-level pretrained features are gradually adapted.
+
+Why CLAHE?
+
+It improves local contrast while limiting excessive amplification of noise.
+
+Why class weighting?
+
+The training distribution is imbalanced, so class weighting helps prevent the optimization objective from being dominated by the majority class.
+
+Why optimize the threshold?
+
+The best operating point for a screening-oriented classifier does not necessarily occur at probability 0.5.
+
+Why use validation data for threshold selection?
+
+Using the test set for threshold tuning would leak information from the evaluation set and produce an overly optimistic estimate.
+
+Why Grad-CAM?
+
+It provides a visual explanation of the image regions contributing to the prediction, making model behavior easier to inspect.
 
 🔮 Future Work
 
-Multi-class classification:
+External validation on an independent chest X-ray dataset
 
-Normal
+Near-duplicate detection using perceptual hashing
 
-Bacterial pneumonia
+Multi-class pneumonia classification
 
-Viral pneumonia
+Uncertainty estimation with ensembles / MC Dropout
 
-Other pulmonary conditions
-
-External validation on NIH ChestX-ray14 or another independent dataset
-
-Perceptual-hash detection for near-duplicate images
-
-Uncertainty estimation using MC Dropout or ensembles
-
-Model distillation for mobile/edge inference
+Model distillation for lightweight deployment
 
 TFLite quantization
 
-Better calibration and uncertainty reporting
+Improved probability calibration
 
-Prospective clinical validation with expert radiologist labels
-
-📚 Reproducibility
-
-The project centralizes configuration in config.py.
-
-The default seed is:
-
-42
-
-src/utils.py seeds Python, NumPy, and TensorFlow/Keras and requests deterministic operations where supported.
-
-This makes experiments easier to reproduce and compare.
+Clinical validation with expert radiologist annotations
 
 ⚠️ Limitations
 
-This is a research/portfolio project, not a certified medical device.
+Not a clinical diagnostic system.The model is intended for research and educational purposes.
 
-High validation/test performance on a public dataset does not establish clinical validity.
+Dataset generalization.Performance on a public dataset does not guarantee performance across hospitals, scanners, populations, or acquisition protocols.
 
-Exact duplicate detection does not guarantee detection of all near-duplicates.
+No external validation yet.Independent validation is required before making clinical generalization claims.
 
-The 95% sensitivity threshold is a project modeling criterion, not a clinically validated requirement.
+Grad-CAM limitations.A heatmap indicates influential regions but does not establish medical causality.
 
-Grad-CAM is an explanation aid, not proof that the highlighted region is medically causal.
-
-External validation is required before making claims about generalization to other hospitals, scanners, populations, or acquisition protocols.
+Threshold criterion.The 95% sensitivity target is a project-level modeling objective, not a clinically validated requirement.
 
 📜 License
 
-This project is released under the MIT License. See LICENSE for details.
+This project is licensed under the MIT License.
 
-👨‍💻 Project Summary
+See LICENSE for details.
 
-Pneumonia Detection from Chest X-Rays is an end-to-end computer-vision project combining:
+<div align="center">
 
-Medical Image Processing
-        +
-Transfer Learning
-        +
-Two-Stage Fine-Tuning
-        +
-Class-Imbalance Handling
-        +
-Threshold Optimization
-        +
-Probability Calibration
-        +
-Explainable AI
-        +
-Error Analysis
-        +
-Automated Testing
-        +
-CI/CD
-        +
-Streamlit Deployment
+🫁 PneumoVision
 
-The main emphasis is not only on obtaining a classifier, but on building a reproducible, auditable, explainable, and deployable ML pipeline around it.
+Computer Vision • Transfer Learning • Explainable AI • Medical Imaging
+
+Built as an end-to-end ML engineering project.
+
+</div>
