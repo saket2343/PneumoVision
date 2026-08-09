@@ -1,0 +1,46 @@
+# Core
+tensorflow>=2.15,<2.17
+tensorboard>=2.15
+numpy>=1.26,<2.0
+pandas>=2.1
+scikit-learn>=1.4
+scipy>=1.11
+
+# Image processing / augmentation
+opencv-python-headless>=4.9
+# Pinned to the 2.x line: src/augmentations.py's RandomResizedCrop(size=...) and
+# GaussNoise(std_range=...) calls use the current 2.x constructor signatures and
+# will raise a pydantic validation error on Albumentations 1.x (which used
+# height=/width= and var_limit= instead) — verified against the actually
+# installed version via inspect.signature, see README "Albumentations API mismatch".
+albumentations>=2.0
+Pillow>=10.2
+
+# Explainability
+# NOTE: Grad-CAM is implemented directly in src/gradcam.py using plain TF/Keras
+# GradientTape — no external Grad-CAM package is needed (the PyPI "grad-cam"
+# package is PyTorch-only and would not work with this TensorFlow/Keras model).
+
+# Visualization
+matplotlib>=3.8
+seaborn>=0.13
+
+# Deployment
+streamlit>=1.32
+streamlit-drawable-canvas>=0.9.3
+fpdf2>=2.7
+
+# Experiment tooling (stretch goals)
+optuna>=3.6
+tf2onnx>=1.16
+onnx>=1.15
+
+# Testing / quality
+pytest>=8.0
+pytest-cov>=4.1
+black>=24.1
+flake8>=7.0
+
+# Utilities
+tqdm>=4.66
+PyYAML>=6.0
