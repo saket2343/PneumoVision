@@ -1,716 +1,224 @@
-🫁 PneumoVision
+# PneumoVision 🫁
 
-AI-Powered Pneumonia Detection from Chest X-Rays
+AI-powered pneumonia detection from chest X-rays — EfficientNet-based binary classifier with Grad-CAM explainability and a Streamlit demo.
 
-<p>
-<img src="https://img.shields.io/badge/Python-3.12-blue?style=flat-square&logo=python&logoColor=white">
-<img src="https://img.shields.io/badge/TensorFlow-2.16-orange?style=flat-square&logo=tensorflow&logoColor=white">
-<img src="https://img.shields.io/badge/Streamlit-App-red?style=flat-square&logo=streamlit&logoColor=white">
-<img src="https://img.shields.io/badge/Backbone-EfficientNet--B0-green?style=flat-square">
-<img src="https://img.shields.io/badge/License-MIT-yellow?style=flat-square">
-</p>
+[![Python 3.12](https://img.shields.io/badge/Python-3.12-blue?style=flat-square&logo=python&logoColor=white)]()
+[![TensorFlow 2.16](https://img.shields.io/badge/TensorFlow-2.16-orange?style=flat-square&logo=tensorflow&logoColor=white)]()
+[![Streamlit](https://img.shields.io/badge/Streamlit-App-red?style=flat-square&logo=streamlit&logoColor=white)]()
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)]()
 
-PneumoVision is an end-to-end deep learning system for binary pneumonia detection from chest X-ray images. It uses an ImageNet-pretrained EfficientNet-B0, a two-stage training strategy, validation-based threshold optimization, Grad-CAM explainability, error analysis, and a Streamlit inference application.
+PneumoVision is an end-to-end pipeline for classifying chest X-rays as NORMAL or PNEUMONIA. It uses an ImageNet-pretrained EfficientNet backbone, a two-stage training strategy, validation-based thresholding, Grad-CAM explanations, and a Streamlit application for interactive use.
 
-⚠️ Medical Disclaimer: This is a research/portfolio project and is not intended for clinical diagnosis or treatment decisions.
+> ⚠️ Medical disclaimer: This project is for research and educational purposes only. It is not a certified medical device and should not be used for clinical diagnosis or treatment.
 
-📌 Overview
+---
 
-The system takes a chest X-ray as input and produces:
+## Demo
 
-NORMAL / PNEUMONIA classification
+Add a screenshot or GIF here (recommended path: `docs/demo.gif` or `docs/screenshot.png`). A short visual helps users quickly understand the project.
 
-Pneumonia probability
+## Table of Contents
+- [Quickstart](#quickstart)
+- [Usage](#usage)
+- [Architecture](#architecture)
+- [Dataset](#dataset)
+- [Preprocessing & Augmentation](#preprocessing--augmentation)
+- [Training](#training)
+- [Evaluation & Thresholding](#evaluation--thresholding)
+- [Grad-CAM & Explainability](#grad-cam--explainability)
+- [Inference & Streamlit App](#inference--streamlit-app)
+- [Testing & CI](#testing--ci)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact](#contact)
 
-Threshold-based final decision
+---
 
-Grad-CAM visual explanation
+## Quickstart
 
-Optional Test-Time Augmentation
+1. Clone and create a virtual environment:
 
-Downloadable prediction report through the Streamlit application
-
-The complete workflow is:
-
-Chest X-Ray
-     │
-     ▼
-Image Validation
-     │
-     ▼
-Preprocessing
- ├── Resize 224 × 224
- ├── RGB Conversion
- ├── CLAHE
- └── Normalization
-     │
-     ▼
-Training Augmentation
-     │
-     ▼
-EfficientNet-B0
-     │
-     ├── Stage 1: Frozen Backbone
-     │              50 Epochs
-     │
-     └── Stage 2: Fine-Tuning
-                    15 Epochs
-     │
-     ▼
-Pneumonia Probability
-     │
-     ▼
-Validation-Based Threshold
-     │
-     ├───────────────┐
-     ▼               ▼
-Prediction        Grad-CAM
-     │               │
-     └───────┬───────┘
-             ▼
-       Error Analysis
-             │
-             ▼
-      Streamlit App
-
-🏗️ Architecture
-
-High-Level Architecture
-
-                         ┌─────────────────────┐
-                         │     Chest X-Ray     │
-                         └──────────┬──────────┘
-                                    │
-                                    ▼
-                         ┌─────────────────────┐
-                         │  Dataset / Loader   │
-                         └──────────┬──────────┘
-                                    │
-                                    ▼
-                    ┌─────────────────────────────┐
-                    │       Preprocessing         │
-                    │                             │
-                    │  Resize → RGB → CLAHE       │
-                    │       → Normalize            │
-                    └──────────────┬──────────────┘
-                                   │
-                                   ▼
-                    ┌─────────────────────────────┐
-                    │     Data Augmentation       │
-                    │       Training Only          │
-                    └──────────────┬──────────────┘
-                                   │
-                                   ▼
-                    ┌─────────────────────────────┐
-                    │       EfficientNet-B0        │
-                    │      ImageNet Pretrained     │
-                    └──────────────┬──────────────┘
-                                   │
-                                   ▼
-                    ┌─────────────────────────────┐
-                    │      Classification Head     │
-                    │                             │
-                    │ GAP → Dropout(0.4)           │
-                    │ → Dense(256) → BN → Swish    │
-                    │ → Dropout(0.3)               │
-                    │ → Dense(128) → BN → Swish    │
-                    │ → Dense(1) → Sigmoid         │
-                    └──────────────┬──────────────┘
-                                   │
-                                   ▼
-                         P(PNEUMONIA | X)
-                                   │
-                    ┌──────────────┴──────────────┐
-                    │                             │
-                    ▼                             ▼
-             Thresholding                     Grad-CAM
-                    │                             │
-                    ▼                             ▼
-          NORMAL / PNEUMONIA              Heatmap Overlay
-                    │                             │
-                    └──────────────┬──────────────┘
-                                   ▼
-                         Streamlit Application
-
-🧠 Model Training Architecture
-
-Training is performed in two stages.
-
-Stage 1 — Feature Extraction
-
-EfficientNet-B0
-     │
-     ├── Backbone → FROZEN
-     │
-     └── Classification Head → TRAINABLE
-                                │
-                                ▼
-                           50 Epochs
-                           LR = 1e-3
-
-The pretrained backbone remains frozen while the classification head learns the pneumonia classification task.
-
-Stage 2 — Fine-Tuning
-
-EfficientNet-B0
-     │
-     ├── Earlier Layers → FROZEN
-     │
-     └── Last ~40 Layers → TRAINABLE
-                            │
-                            ▼
-                       15 Epochs
-                       LR = 1e-5
-
-The final stage adapts high-level pretrained features to chest X-ray patterns using a much smaller learning rate.
-
-🔄 Code Flow
-
-The project separates data processing, model construction, training, evaluation, inference, and deployment.
-
-1. Training Flow
-
-Entry point:
-
-train.py
-
-Flow:
-
-train.py
-   │
-   ├── Load configuration
-   │
-   ├── Set random seeds
-   │
-   ├── Validate dataset
-   │
-   ├── Create train / validation datasets
-   │
-   ├── Apply preprocessing
-   │
-   ├── Apply training augmentation
-   │
-   ├── Calculate class weights
-   │
-   ├── Build EfficientNet model
-   │
-   ├── Stage 1
-   │     └── Train classification head
-   │
-   ├── Stage 2
-   │     └── Fine-tune last backbone layers
-   │
-   ├── Monitor validation ROC-AUC
-   │
-   └── Save best model
-            │
-            ▼
-   models/best_model.keras
-
-2. Threshold Optimization Flow
-
-Entry point:
-
-tune_threshold.py
-
-Best Model
-    │
-    ▼
-Validation Dataset
-    │
-    ▼
-Generate Probabilities
-    │
-    ▼
-Search Thresholds
-0.01 → 0.99
-    │
-    ▼
-Find Threshold
-with Sensitivity ≥ 95%
-    │
-    ▼
-Choose Highest Specificity
-    │
-    ▼
-Save Recommendation
-    │
-    ▼
-outputs/reports/
-threshold_recommendation.json
-
-The test set is not used during threshold selection.
-
-3. Evaluation Flow
-
-Entry point:
-
-evaluate.py
-
-Best Model
-    │
-    ▼
-Frozen Validation Threshold
-    │
-    ▼
-Held-Out Test Set
-    │
-    ▼
-Predictions
-    │
-    ├── Accuracy
-    ├── Precision
-    ├── Recall / Sensitivity
-    ├── Specificity
-    ├── F1
-    ├── Balanced Accuracy
-    ├── MCC
-    └── ROC-AUC
-    │
-    ▼
-Confusion Matrix
-ROC Curve
-PR Curve
-Error Analysis
-
-4. Single Image Inference Flow
-
-Entry point:
-
-predict.py
-
-X-Ray Image
-    │
-    ▼
-Load Image
-    │
-    ▼
-Preprocess
-    │
-    ▼
-Optional TTA
-    │
-    ▼
-Model Prediction
-    │
-    ▼
-Pneumonia Probability
-    │
-    ▼
-Recommended Threshold
-    │
-    ├───────────────┐
-    ▼               ▼
-NORMAL          PNEUMONIA
-    │               │
-    └───────┬───────┘
-            ▼
-         Grad-CAM
-
-5. Streamlit Application Flow
-
-Entry point:
-
-app.py
-
-User Uploads X-Ray
-        │
-        ▼
-    app.py
-        │
-        ▼
-Inference Engine
-        │
-        ├── Preprocessing
-        ├── Model Prediction
-        ├── Thresholding
-        └── Grad-CAM
-        │
-        ▼
-Display:
- ├── Prediction
- ├── Probability
- ├── Threshold
- ├── Heatmap
- └── PDF Report
-
-📂 Folder Structure
-
-PneumoVision/
-│
-├── 📂 dataset/
-│   ├── train/
-│   │   ├── NORMAL/
-│   │   └── PNEUMONIA/
-│   │
-│   ├── val/
-│   │   ├── NORMAL/
-│   │   └── PNEUMONIA/
-│   │
-│   └── test/
-│       ├── NORMAL/
-│       └── PNEUMONIA/
-│
-├── 📂 notebooks/
-│   ├── 01_EDA.ipynb
-│   ├── 02_Preprocessing.ipynb
-│   ├── 03_ModelTraining.ipynb
-│   ├── 04_Evaluation.ipynb
-│   └── 05_GradCAM.ipynb
-│
-├── 📂 src/
-│   ├── preprocessing.py
-│   ├── augmentations.py
-│   ├── dataset.py
-│   ├── model.py
-│   ├── trainer.py
-│   ├── evaluator.py
-│   ├── threshold_optimizer.py
-│   ├── calibration.py
-│   ├── experiment_tracker.py
-│   ├── gradcam.py
-│   ├── error_analysis.py
-│   ├── inference.py
-│   └── utils.py
-│
-├── 📂 tests/
-│   ├── test_model.py
-│   ├── test_model_preprocessing.py
-│   ├── test_preprocessing.py
-│   ├── test_dataset.py
-│   ├── test_dataset_balancing_and_leakage.py
-│   └── test_threshold_optimizer.py
-│
-├── 📂 models/
-│   └── best_model.keras
-│
-├── 📂 outputs/
-│   ├── confusion_matrix/
-│   ├── roc/
-│   ├── pr_curve/
-│   ├── heatmaps/
-│   ├── error_analysis/
-│   └── reports/
-│
-├── 📂 .github/
-│   └── workflows/
-│       └── ci.yml
-│
-├── app.py
-├── train.py
-├── predict.py
-├── evaluate.py
-├── tune_threshold.py
-├── calibrate.py
-├── check_data_integrity.py
-├── compare_models.py
-├── tune.py
-├── export_model.py
-├── config.py
-├── requirements.txt
-└── LICENSE
-
-📌 Important Files
-
-File
-
-Purpose
-
-train.py
-
-Main model training pipeline
-
-predict.py
-
-Single-image inference
-
-evaluate.py
-
-Final test-set evaluation
-
-tune_threshold.py
-
-Validation-based threshold selection
-
-calibrate.py
-
-Probability calibration
-
-app.py
-
-Streamlit application
-
-config.py
-
-Central configuration
-
-src/model.py
-
-Model architecture
-
-src/dataset.py
-
-Dataset loading
-
-src/preprocessing.py
-
-Image preprocessing
-
-src/augmentations.py
-
-Training augmentation
-
-src/trainer.py
-
-Training logic
-
-src/evaluator.py
-
-Evaluation utilities
-
-src/gradcam.py
-
-Grad-CAM generation
-
-src/error_analysis.py
-
-False-positive/negative analysis
-
-src/inference.py
-
-Inference engine
-
-check_data_integrity.py
-
-Dataset validation
-
-compare_models.py
-
-Backbone comparison
-
-tune.py
-
-Hyperparameter tuning
-
-⚙️ Configuration
-
-Main configuration is centralized in:
-
-config.py
-
-Important defaults:
-
-Backbone        = EfficientNet-B0
-Input Size      = 224 × 224
-Batch Size      = 32
-Stage 1         = 50 epochs
-Stage 2         = 15 epochs
-Stage 1 LR      = 1e-3
-Stage 2 LR      = 1e-5
-Optimizer       = AdamW
-Weight Decay    = 1e-4
-Seed            = 42
-
-🚀 Commands
-
-Installation
-
-Clone Repository
-
-git clone <YOUR_GITHUB_REPOSITORY_URL>
+```bash
+git clone https://github.com/saket2343/PneumoVision.git
 cd PneumoVision
-
-Create Virtual Environment
-
-macOS / Linux:
-
 python3 -m venv .venv
-source .venv/bin/activate
-
-Windows:
-
-python -m venv .venv
-.venv\Scripts\activate
-
-Install Dependencies
-
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
+```
 
-🔍 Check Dataset
+2. Validate dataset:
 
+```bash
 python check_data_integrity.py
+```
 
-🏋️ Train Model
+3. Train (default two-stage training):
 
-Default two-stage training:
-
+```bash
 python train.py
+```
 
-Short Experiment
+4. Tune threshold:
 
-python train.py \
-    --epochs 30 \
-    --fine-tune-epochs 10
-
-Without Fine-Tuning
-
-python train.py --no-fine-tune
-
-Oversampling
-
-python train.py \
-    --oversample \
-    --oversample-ratio 0.5 \
-    --no-class-weights
-
-Focal Loss
-
-python train.py \
-    --loss focal \
-    --focal-gamma 2.0 \
-    --focal-alpha 0.25
-
-🎯 Tune Threshold
-
+```bash
 python tune_threshold.py
+```
 
-The selected threshold is saved under:
+5. Evaluate:
 
-outputs/reports/
+```bash
+python evaluate.py --model-path models/best_model.keras --threshold <recommended-threshold>
+```
 
-📊 Evaluate Model
+6. Run the Streamlit app:
 
-python evaluate.py \
-    --model-path models/best_model.keras \
-    --threshold <recommended-threshold>
-
-🔮 Predict One Image
-
-python predict.py \
-    --image path/to/xray.jpg
-
-With Test-Time Augmentation
-
-python predict.py \
-    --image path/to/xray.jpg \
-    --tta
-
-Save Grad-CAM
-
-python predict.py \
-    --image path/to/xray.jpg \
-    --save-heatmap outputs/heatmaps/example.png
-
-🌡️ Calibrate Probabilities
-
-python calibrate.py \
-    --model-path models/best_model.keras
-
-🌐 Run Streamlit App
-
+```bash
 streamlit run app.py
+```
 
-Then open the local Streamlit URL shown in the terminal.
+---
 
-🧪 Run Tests
+## Usage
 
-pytest tests/ -v
+Predict a single image (optional TTA and heatmap):
 
-With coverage:
+```bash
+python predict.py --image path/to/xray.jpg
+python predict.py --image path/to/xray.jpg --tta
+python predict.py --image path/to/xray.jpg --save-heatmap outputs/heatmaps/example.png
+```
 
+Programmatic example:
+
+```python
+from src.inference import Predictor
+p = Predictor(model_path="models/best_model.keras", threshold=0.42)
+prob = p.predict("path/to/xray.jpg")
+print(f"Pneumonia probability: {prob:.2f}")
+```
+
+---
+
+## Architecture
+
+- Backbone: EfficientNet-B0 (ImageNet pretrained)
+- Classification head:
+  - GlobalAveragePooling2D
+  - Dropout(0.40)
+  - Dense(256) -> BatchNorm -> Swish
+  - Dropout(0.30)
+  - Dense(128) -> BatchNorm -> Swish
+  - Dense(1) -> Sigmoid
+- Training strategy: two stages
+  - Stage 1 (feature extraction): frozen backbone, train head, 50 epochs, lr=1e-3
+  - Stage 2 (fine-tuning): unfreeze last ~40 layers, 15 epochs, lr=1e-5
+
+---
+
+## Dataset
+
+Expected layout:
+
+```
+dataset/
+  train/
+    NORMAL/ PNEUMONIA/
+  val/
+    NORMAL/ PNEUMONIA/
+  test/
+    NORMAL/ PNEUMONIA/
+```
+
+Current verified split: 5,856 images (train 4,709 | val 523 | test 624). The dataset is imbalanced toward the PNEUMONIA class.
+
+---
+
+## Preprocessing & Augmentation
+
+- Deterministic preprocessing for validation/test:
+  - Convert to RGB
+  - Resize to 224×224
+  - CLAHE (clip limit = 2.0, tile grid = 8×8)
+  - Convert to float32 and normalize to [0, 1]
+  - Apply backbone-specific preprocessing (e.g., multiply by 255 if backbone expects [0,255])
+- Train-only augmentations (conservative): random resized crop, horizontal flip, small affine transforms, brightness/contrast, Gaussian noise
+
+---
+
+## Training
+
+Key hyperparameters and defaults are in `config.py`.
+
+- Optimizer: AdamW, weight decay = 1e-4
+- Batch size: 32
+- Stage 1: 50 epochs, lr = 1e-3
+- Stage 2: 15 epochs, lr = 1e-5
+- Loss: Binary Cross-Entropy (optional focal loss)
+- Imbalance handling: class weights, optional oversampling, focal loss
+- Mixed precision: enabled
+- Checkpoint selection: validation ROC-AUC
+
+---
+
+## Evaluation & Thresholding
+
+- Reported metrics: Accuracy, Precision, Recall (Sensitivity), Specificity, F1, Balanced Accuracy, MCC, ROC-AUC
+- Threshold search: 0.01 → 0.99 (step 0.01). Primary rule: among thresholds achieving Sensitivity ≥ 95%, select the threshold with the highest Specificity. Alternatives supported: Youden's J, best F1, best balanced accuracy.
+- The test set is never used for threshold selection — thresholding is performed on validation only.
+
+---
+
+## Grad-CAM & Explainability
+
+Grad-CAM visualizations are available via `src/gradcam.py`. Use Grad-CAM overlays to inspect model attention on chest X-rays; note these are interpretability aids and not clinical evidence.
+
+---
+
+## Inference & Streamlit App
+
+The Streamlit app (`app.py`) supports uploading an X-ray, running inference, visualizing Grad-CAM heatmaps, toggling TTA, adjusting threshold sliders, and downloading a PDF report. The recommended threshold is read from `outputs/reports/threshold_recommendation.json`.
+
+---
+
+## Testing & CI
+
+Run the test suite:
+
+```bash
 pytest tests/ -v --cov=src
+```
 
-🧹 Code Quality
+CI is configured in `.github/workflows/ci.yml`. Recommended CI steps: black --check, flake8, pytest. Add badges to this README when CI is enabled.
 
-black --check .
+---
 
-flake8 .
+## Contributing
 
-🔬 Compare Backbones
+Suggestions:
+- Add `CONTRIBUTING.md` describing how to run experiments, test locally, coding style, and PR expectations.
+- Add an issue/PR template and `CODE_OF_CONDUCT.md`.
+- Require tests for changes that touch processing/training code.
 
-python compare_models.py \
-    --backbones EfficientNetB0 EfficientNetB1 EfficientNetB2 EfficientNetB3
+If you'd like, I can create a minimal `CONTRIBUTING.md` and PR for review.
 
-🧠 Hyperparameter Tuning
+---
 
-python tune.py
+## Suggested improvements
 
-🔗 Complete Command Flow
+- Add a short demo GIF / screenshot in `docs/` and link it in this README.
+- Add CI and coverage badges near the top.
+- Add `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, and issue/PR templates.
+- Add a small example notebook that runs inference on a sample image (includes Grad-CAM) so users can reproduce results quickly.
+- Consider hosting a live demo (Streamlit Cloud / Heroku) and add a live demo link.
 
-For a complete fresh experiment, run:
+---
 
-# 1. Validate dataset
-python check_data_integrity.py
+## License
 
-# 2. Train
-python train.py
+This project is licensed under the MIT License. See `LICENSE` for details.
 
-# 3. Select validation threshold
-python tune_threshold.py
+---
 
-# 4. Evaluate on held-out test set
-python evaluate.py \
-    --model-path models/best_model.keras \
-    --threshold <recommended-threshold>
+## Contact
 
-# 5. Run the application
-streamlit run app.py
-
-🧪 Development Flow
-
-For code changes:
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Run formatting check
-black --check .
-
-# Run linting
-flake8 .
-
-# Run tests
-pytest tests/ -v
-
-# Start application
-streamlit run app.py
-
-⚠️ Evaluation Rule
-
-The project follows:
-
-TRAIN
-  │
-  ▼
-Best Model
-  │
-  ▼
-VALIDATION
-  │
-  ├── Model Selection
-  └── Threshold Selection
-  │
-  ▼
-FREEZE THRESHOLD
-  │
-  ▼
-TEST
-  │
-  ▼
-FINAL METRICS
-
-The test set must not be used for threshold optimization.
-
-📄 License
-
-This project is licensed under the MIT License.
-
-See LICENSE for details.
-
-<div align="center">
-
-🫁 PneumoVision
-
-Computer Vision · Medical Imaging · Transfer Learning · Explainable AI
-
-</div>
+For questions or to report issues, open an issue at: https://github.com/saket2343/PneumoVision/issues
